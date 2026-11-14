@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sort It! — The Waste Sprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F0E6;--ink:#0A0A0A;--card:#FFFFFF;--lime:#C6FF00;--pink:#FF2E93;--cyan:#19E3FF;--on:#0A0A0A;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141414;--ink:#F2F0E6;--card:#222222}}
+:root[data-theme="dark"]{--bg:#141414;--ink:#F2F0E6;--card:#222222}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Space Mono',monospace;-webkit-user-select:none;user-select:none}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(var(--ink) 1.4px,transparent 1.6px) 0 0/16px 16px;opacity:.14}
+.a{font-family:'Anton',Impact,sans-serif;text-transform:uppercase;font-weight:400}
+.b{font-family:'Archivo Black','Arial Black',sans-serif;text-transform:uppercase;font-weight:400}
+#app{position:relative;height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg);border:0 solid var(--ink);border-left-width:6px;border-right-width:6px;box-sizing:border-box;overflow:hidden}
+.tk{background:var(--ink);color:var(--lime);overflow:hidden;white-space:nowrap;font-weight:700;font-size:14px;letter-spacing:2px;padding:8px 0}
+.tk div{display:inline-block;animation:sc 18s linear infinite}
+@keyframes sc{to{transform:translateX(-50%)}}
+.hud{display:flex;gap:8px;padding:10px 12px 12px}
+.hud div{flex:1;border:4px solid var(--ink);box-shadow:4px 4px 0 var(--ink);color:var(--on);padding:4px 8px 2px}
+.hud small{display:block;font-size:11px;font-weight:700;letter-spacing:1px}
+.hud .a{font-size:38px;line-height:1.05;display:block}
+.bar{height:12px;background:var(--ink)}
+.bar i{display:block;height:100%;width:100%;background:var(--lime)}
+#play{position:relative;flex:1;min-height:240px;margin:12px;border:5px solid var(--ink);background:var(--card);overflow:hidden;box-shadow:8px 8px 0 var(--ink)}
+#play::before{content:"";position:absolute;inset:0;background:radial-gradient(var(--ink) 1.5px,transparent 1.7px) 0 0/14px 14px;opacity:.15}
+#play .hz{position:absolute;left:0;right:0;bottom:0;height:14px;background:repeating-linear-gradient(45deg,#FFE600 0 12px,#0A0A0A 12px 24px);border-top:4px solid var(--ink)}
+#play.shake{animation:sh .25s}
+@keyframes sh{25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+#item{position:absolute;left:50%;top:0;font-size:clamp(64px,17vw,96px);line-height:1;will-change:transform;filter:drop-shadow(6px 6px 0 var(--ink))}
+#fx{position:absolute;left:50%;top:36%;z-index:3;pointer-events:none;opacity:0;transform:translate(-50%,-50%);font-family:'Anton',Impact,sans-serif;text-transform:uppercase;font-size:clamp(30px,9vw,52px);line-height:1.05;text-align:center;padding:4px 12px;border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);color:var(--on);max-width:90%}
+#fx.good{background:var(--lime)}#fx.bad{background:var(--pink)}
+#fx.pop{animation:pop .85s ease-out}
+@keyframes pop{0%{opacity:1;transform:translate(-50%,-50%) scale(.5) rotate(-6deg)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.1) rotate(3deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-2deg)}100%{opacity:0;transform:translate(-50%,-80%) scale(1) rotate(-2deg)}}
+.bins{display:flex;gap:10px;padding:6px 12px 16px}
+.bin{flex:1;border:5px solid var(--ink);box-shadow:6px 6px 0 var(--ink);color:var(--on);padding:10px 2px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;touch-action:manipulation}
+.bin:active{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
+.bin .ic{font-size:34px;line-height:1}.bin b{font-family:'Archivo Black','Arial Black',sans-serif;font-weight:400;font-size:clamp(13px,3.7vw,18px);text-transform:uppercase}.bin small{font-size:11px;font-weight:700}
+.ov{position:absolute;inset:0;z-index:5;background:var(--bg);display:none;flex-direction:column;align-items:center;gap:12px;padding:18px;text-align:center;overflow:auto}
+.ov>:first-child{margin-top:auto}.ov>:last-child{margin-bottom:auto}
+.ov.on{display:flex}
+.ov::before{content:"";position:absolute;inset:0;z-index:-1;background:repeating-linear-gradient(-45deg,transparent 0 22px,rgba(255,46,147,.16) 22px 44px)}
+h1,h2{margin:0}
+.big{font-size:clamp(60px,21vw,112px);line-height:.9;color:var(--pink);-webkit-text-stroke:4px var(--ink);text-shadow:8px 8px 0 var(--ink)}
+.st{display:inline-block;background:var(--lime);color:var(--on);border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:6px 12px;font-size:16px}
+.strip{background:var(--ink);color:var(--bg);padding:8px 14px;font-size:20px;transform:rotate(1.5deg)}
+.rules{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px;font-weight:700;text-align:left}
+.rules li{background:var(--card);border:3px solid var(--ink);padding:6px 10px}
+.rules em{font-style:normal;background:var(--cyan);color:var(--on);padding:0 4px}
+.go{font-family:'Anton',Impact,sans-serif;text-transform:uppercase;font-size:46px;letter-spacing:2px;background:var(--lime);color:var(--on);border:5px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:6px 36px;cursor:pointer;touch-action:manipulation}
+.go:active,.sm:active{transform:translate(5px,5px);box-shadow:3px 3px 0 var(--ink)}
+.sm{font-family:'Archivo Black','Arial Black',sans-serif;text-transform:uppercase;font-size:15px;background:var(--cyan);color:var(--on);border:4px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:10px 16px;cursor:pointer;touch-action:manipulation}
+.lb{width:100%;max-width:380px;box-sizing:border-box;border:4px solid var(--ink);background:var(--card);box-shadow:6px 6px 0 var(--ink);padding:8px 10px;text-align:left}
+.lb>b{display:block;font-size:15px;margin-bottom:6px}.lb p{margin:0;font-size:13px;font-weight:700}
+.row{display:flex;align-items:center;gap:8px;padding:4px 6px;border-bottom:2px dashed var(--ink);font-size:14px;font-weight:700}
+.row i{font-style:normal;width:36px;font-family:'Anton',Impact,sans-serif;font-size:19px}.row em{font-style:normal;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row b{font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:21px}
+.r1{background:#FFD400;color:#0A0A0A}.r2{background:#D9D9D9;color:#0A0A0A}.r3{background:#E8955A;color:#0A0A0A}
+.row.me:not(.r1):not(.r2):not(.r3){background:var(--lime);color:var(--on)}.row.me{outline:4px solid var(--pink);outline-offset:-4px}
+.pl{display:flex;justify-content:space-between;gap:8px;padding:10px 12px 0;font-size:14px;font-weight:700}
+.pl span{background:var(--ink);color:var(--bg);padding:2px 10px}#pn{max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#lr{background:var(--pink);color:var(--on)}
+.in.err{background:var(--pink);color:var(--on)}
+.fs{font-size:clamp(90px,30vw,150px);line-height:.9;color:var(--lime);-webkit-text-stroke:4px var(--ink);text-shadow:7px 7px 0 var(--ink)}
+.in{width:100%;max-width:300px;box-sizing:border-box;font:700 18px 'Space Mono',monospace;padding:10px;border:4px solid var(--ink);background:var(--card);color:var(--ink);-webkit-user-select:text;user-select:text}
+label{font-size:13px;font-weight:700}
+@media (prefers-reduced-motion:reduce){.tk div{animation:none}#fx.pop,#play.shake{animation-duration:.01s}}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="tk b"><div>SORT IT OR LOSE IT /// NO PLANET B /// NO CAP /// SORT IT OR LOSE IT /// NO PLANET B /// NO CAP /// SORT IT OR LOSE IT /// NO PLANET B /// NO CAP /// SORT IT OR LOSE IT /// NO PLANET B /// NO CAP ///</div></div>
+<div class="hud">
+<div style="background:var(--lime)"><small>SCORE</small><span class="a" id="sc">0</span></div>
+<div style="background:var(--cyan)"><small>COMBO</small><span class="a" id="cb">x1</span></div>
+<div style="background:var(--pink)"><small>TIME</small><span class="a" id="tm">30.0</span></div>
+</div>
+<div class="bar"><i id="bar"></i></div>
+<div class="pl"><span id="pn">PLAYER</span><span id="lr">RANK #1</span></div>
+<div id="play"><div id="item" aria-hidden="true"></div><div id="fx" role="status"></div><div class="hz"></div></div>
+<div class="bins">
+<button type="button" class="bin" data-t="c" style="background:var(--lime)"><span class="ic">🌱</span><b>Compost</b><small>KEY 1</small></button>
+<button type="button" class="bin" data-t="r" style="background:var(--cyan)"><span class="ic">♻️</span><b>Recycle</b><small>KEY 2</small></button>
+<button type="button" class="bin" data-t="l" style="background:var(--pink)"><span class="ic">🗑️</span><b>Landfill</b><small>KEY 3</small></button>
+</div>
+
+<div class="ov on" id="ovs">
+<div class="st b" style="transform:rotate(-4deg)">#EnvironmentAndUs</div>
+<h1 class="a big">Sort<br>it!</h1>
+<div class="strip b">The waste sprint / 30 sec</div>
+<ul class="rules">
+<li>1. Trash falls. <em>Tap the right bin</em> before it hits the floor.</li>
+<li>2. Chain correct sorts to build a <em>combo up to x5</em>.</li>
+<li>3. Wrong bin = combo gone and -5 points.</li>
+</ul>
+<label for="nm">Type your name to play</label>
+<input class="in" id="nm" maxlength="14" autocomplete="off" placeholder="Your name">
+<button type="button" class="go" id="go">Start</button>
+<div class="lb"><b class="b">Leaderboard / top 10</b><div id="lb"></div></div>
+</div>
+
+<div class="ov" id="ovo">
+<h2 class="a" style="font-size:clamp(48px,15vw,76px);line-height:.95">Time’s up!</h2>
+<div class="a fs" id="fs">0</div>
+<div class="st b" id="rk" style="transform:rotate(-3deg);font-size:20px"></div>
+<div id="sm" style="font-size:14px;font-weight:700"></div>
+<div class="st b" id="ps" style="background:var(--pink);transform:rotate(2deg)"></div>
+<div class="lb"><b class="b">Leaderboard / top 10</b><div id="lb2"></div></div>
+<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center"><button type="button" class="sm" id="sv" style="background:var(--lime)">Play again</button><button type="button" class="sm" id="sk">New player</button></div>
+<div style="font-size:13px;font-weight:700;max-width:320px">Real life has no restart button. Pledge one eco habit before you leave.</div>
+</div>
+</div>
+<script>
+var $=function(s){return document.querySelector(s)};
+var BN={c:'Compost',r:'Recycle',l:'Landfill'};
+var IT=[['🍌','Banana peel','c'],['🍎','Apple core','c'],['🥚','Eggshell','c'],['🍂','Dry leaves','c'],['🥫','Tin can','r'],['📰','Newspaper','r'],['📦','Cardboard box','r'],['🧴','Plastic bottle','r'],['🧻','Used tissue','l'],['🪥','Toothbrush','l'],['🩹','Bandage','l'],['🍬','Candy wrapper','l']];
+var st='start',score=0,combo=0,left=30,cur=null,y=0,last=0,el=0,ok=0,raf=0,pl='',B=[],bc=0;
+function load(){try{return JSON.parse(localStorage.getItem('sortit:board')||'[]')}catch(e){return[]}}
+function addScore(n,s){var b=load(),k=n.toLowerCase(),f=b.filter(function(r){return r.n.toLowerCase()===k})[0];if(f){if(s>f.s)f.s=s}else b.push({n:n,s:s});b.sort(function(p,q){return q.s-p.s});try{localStorage.setItem('sortit:board',JSON.stringify(b.slice(0,50)))}catch(e){}return b}
+function board(id,hi){var o=$(id),b=load().slice(0,10),k=(hi||'').toLowerCase();o.textContent='';
+if(!b.length){var p=document.createElement('p');p.textContent='No scores yet. Be the first!';o.appendChild(p);return}
+b.forEach(function(r,i){var d=document.createElement('div'),a=document.createElement('i'),n=document.createElement('em'),s=document.createElement('b');d.className='row r'+(i+1)+(k&&r.n.toLowerCase()===k?' me':'');a.textContent='#'+(i+1);n.textContent=r.n;s.textContent=r.s;d.append(a,n,s);o.appendChild(d)})}
+function mult(){return Math.min(5,1+(combo/4|0))}
+function hud(){$('#sc').textContent=score;$('#cb').textContent='x'+mult();var k=pl.toLowerCase();$('#lr').textContent='RANK #'+(1+B.filter(function(r){return r.n.toLowerCase()!==k&&r.s>score}).length)}
+function fx(t,c){var f=$('#fx');f.textContent=t;f.className=c;void f.offsetWidth;f.className=c+' pop'}
+function shake(){var p=$('#play');p.classList.remove('shake');void p.offsetWidth;p.classList.add('shake')}
+function spawn(){var i;do{i=IT[Math.random()*IT.length|0]}while(i===cur);cur=i;y=0;$('#item').textContent=i[0]}
+function draw(){var p=$('#play'),h=$('#item').offsetHeight||90;$('#item').style.transform='translate(-50%,'+(y*(p.clientHeight-h-16))+'px)';$('#tm').textContent=Math.max(0,left).toFixed(1);$('#bar').style.width=Math.max(0,left/30*100)+'%'}
+function start(){score=0;combo=0;bc=0;left=30;el=0;ok=0;st='play';B=load();$('#pn').textContent='PLAYER: '+pl;$('#ovs').classList.remove('on');$('#ovo').classList.remove('on');$('#fx').className='';spawn();hud();draw();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)}
+function tick(t){if(st!=='play')return;var dt=Math.min(.05,(t-last)/1000);last=t;left-=dt;el+=dt;y+=dt/Math.max(1.05,2.5-el*.045);
+if(left<=0){left=0;draw();end();return}
+if(y>=1){combo=0;fx('Too slow!','bad');shake();spawn();hud()}
+draw();raf=requestAnimationFrame(tick)}
+function sort(t){if(st!=='play')return;if(t===cur[2]){combo++;bc=Math.max(bc,combo);var p=10*mult();score+=p;ok++;fx('+'+p,'good')}else{combo=0;score=Math.max(0,score-5);fx(cur[1]+' → '+BN[cur[2]]+'!','bad');shake()}spawn();hud()}
+function end(){st='over';cancelAnimationFrame(raf);var r=score<80?'Landfill Larry':score<200?'Recycling Rookie':score<350?'Compost Champ':'Planet Hero';
+var b=addScore(pl,score),k=pl.toLowerCase(),i=b.findIndex(function(x){return x.n.toLowerCase()===k}),best=b[i].s;
+$('#fs').textContent=score;$('#rk').textContent=r;$('#sm').textContent='Sorted '+ok+' right / best streak '+bc;
+$('#ps').textContent=score>=best?(i<10?'You’re #'+(i+1)+' on the board!':'You’re #'+(i+1)+'. Keep climbing!'):'Your best: '+best+' (#'+(i+1)+')';
+board('#lb2',pl);$('#ovo').classList.add('on')}
+function home(){st='start';$('#nm').value='';pl='';board('#lb');$('#ovo').classList.remove('on');$('#ovs').classList.add('on')}
+function go(){var n=$('#nm').value.trim();if(!n){$('#nm').classList.add('err');$('#nm').focus();return}pl=n;start()}
+document.querySelectorAll('.bin').forEach(function(b){b.addEventListener('click',function(){sort(b.dataset.t)})});
+document.addEventListener('keydown',function(e){var k={'1':'c','2':'r','3':'l',ArrowLeft:'c',ArrowDown:'r',ArrowRight:'l'}[e.key];if(k&&st==='play'){e.preventDefault();sort(k)}});
+$('#go').onclick=go;$('#sk').onclick=home;$('#sv').onclick=start;
+$('#nm').addEventListener('input',function(){this.classList.remove('err')});
+$('#nm').addEventListener('keydown',function(e){if(e.key==='Enter')go()});
+board('#lb');
+</script>
+</body>
+</html>
